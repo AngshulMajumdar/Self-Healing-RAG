@@ -1,0 +1,15 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=7mm and 8mm]
+\node[title] (t) {v0.2 keeps the protocol but collapses the model-call graph};
+\node[subtitle, below=3mm of t] (sub) {Expensive introspection moves to deterministic control whenever possible.};
+\node[smalllabel, below=10mm of sub, xshift=-6.0cm] (l1) {v0.1};
+\node[bluebox, right=4mm of l1] (q1) {Question};\node[purplebox,right=of q1](obs){LLM\\observer};\node[purplebox,right=of obs](rew){LLM\\rewrite};\node[purplebox,right=of rew](ver){LLM\\verifier};\node[purplebox,right=of ver](ans){LLM\\answer};
+\draw[arrow](q1)--(obs);\draw[arrow](obs)--(rew);\draw[arrow](rew)--(ver);\draw[arrow](ver)--(ans);
+\node[smalllabel, below=18mm of l1] (l2) {v0.2};
+\node[bluebox, right=4mm of l2] (q2) {Question};\node[greenbox,right=of q2,text width=2.7cm](retr){deterministic\\retrieval};\node[purplebox,right=of retr](solve){LLM\\solve};\node[greenbox,right=of solve,text width=2.6cm](check){deterministic\\verify};
+\draw[arrow](q2)--(retr);\draw[arrow](retr)--(solve);\draw[arrow](solve)--(check);
+\node[amberbox, below=10mm of check,text width=3.6cm](exp){Expand evidence\\only on failure};\node[purplebox,left=of exp](repair){one repair\\solve};\draw[arrow](check)--(exp);\draw[arrow](exp)--(repair);\draw[greenarrow](repair.west)-|node[smalllabel,below,pos=.25]{final check}(retr.south);
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,15 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=8mm and 9mm]
+\node[title] (t) {Finite healing requires explicit cycle and exhaustion semantics};
+\node[bluebox, below=11mm of t] (s0) {$s_0$\\$\rho=5$}; \node[greenbox,right=of s0](s1){$s_1$\\$\rho=3$}; \node[greenbox,right=of s1](s2){$s_2$\\$\rho=1$};
+\draw[greenarrow](s0)--(s1);\draw[greenarrow](s1)--(s2);
+\node[purplebox, below=11mm of s1] (prop) {proposal recreates\\signature $\sigma(E_0)$};
+\draw[dashedarrow](s2.south)--++(0,-4mm)-|(prop.east);
+\node[redbox, left=11mm of prop] (cycle) {cycle\\stop}; \node[amberbox,right=11mm of prop](ex){action set\\exhausted};
+\draw[redarrow](prop)--(cycle);\draw[arrow](prop)--(ex);
+\node[ghost, below=12mm of prop, text width=12cm] (term) {Terminal API: closed $\mid$ exhausted $\mid$ cycle $\mid$ stagnated $\mid$ insufficient $\mid$ technical failure};
+\draw[arrow](cycle)--(term);\draw[arrow](ex)--(term);
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,16 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 11mm]
+\node[title] (t) {Minimal recipe for implementing the protocol in another RAG system};
+\node[bluebox, below=11mm of t, text width=3.6cm] (a) {1\\Define durable\\evidence state};
+\node[amberbox, right=of a, text width=3.6cm] (b) {2\\Define query-specific\\requirements};
+\node[purplebox, right=of b, text width=3.6cm] (c) {3\\Choose bounded\\repair actions};
+\draw[arrow](a)--(b);\draw[arrow](b)--(c);
+\node[box, below=13mm of c, text width=3.6cm] (d) {4\\Verify candidate\\independently};
+\node[greenbox, left=of d, text width=3.6cm] (e) {5\\Commit only\\admissible change};
+\node[redbox, left=of e, text width=3.6cm] (f) {6\\Rollback, detect cycles,\\terminate explicitly};
+\draw[arrow](c)--(d);\draw[arrow](d)--(e);\draw[greenarrow](e)--(f);
+\draw[redarrow](f.west)--++(-8mm,0)|-node[smalllabel,left,pos=.25]{repeat only while bounded}(a.west);
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,11 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}
+\node[title] at (6.1,5.2) {Protocol invariants are separate from implementation choices};
+\node[bluebox, text width=5.0cm, minimum height=4.6cm] (p) at (2.8,2.6) {\textbf{Protocol}\\[2mm]observable evidence state\\requirement residual\\tentative proposals\\independent verification\\commit / rollback\\cycle + bounded termination};
+\node[purplebox, text width=5.0cm, minimum height=4.6cm] (i) at (9.4,2.6) {\textbf{One implementation}\\[2mm]MiniLM embeddings\\Chroma store\\document-local search\\Qwen2.5-7B-Instruct\\financial-document QA\\deterministic arithmetic checks};
+\draw[dashedarrow](p.east)--node[smalllabel,above]{instantiated by}(i.west);
+\node[greenbox, text width=10.8cm] (swap) at (6.1,-0.45) {Swap the retriever, vector DB, LLM, or verifier.\\Change the application domain too; the protocol contract stays fixed.};
+\end{tikzpicture}
+\end{document}

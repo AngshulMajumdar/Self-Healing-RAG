@@ -1,0 +1,14 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=7mm and 9mm]
+\node[title] (t) {A discrete residual turns evidence repair into monotone control};
+\node[greenbox, below=10mm of t, minimum width=3.3cm] (sup) {Supported\\$c(S)=0$};
+\node[amberbox, right=of sup, minimum width=3.3cm] (unc) {Uncertain\\$c(U)=1$};
+\node[redbox, right=of unc, minimum width=3.3cm] (mis) {Missing\\$c(M)=2$};
+\node[box, below=14mm of unc, text width=10.7cm] (rho) {$\displaystyle \rho(s)=\sum_i c(z_i)$ \\[2mm] non-negative integer; no benchmark answer is required at runtime};
+\node[amberbox, below left=12mm and -1.2cm of rho, minimum width=4.6cm] (old) {current state\\$[S,M,U]$\\$\rho=3$};
+\node[greenbox, below right=12mm and -1.2cm of rho, minimum width=4.6cm] (new) {candidate state\\$[S,S,U]$\\$\rho=1$};
+\draw[greenarrow](old)--node[smalllabel,above]{strict decrease}(new);
+\end{tikzpicture}
+\end{document}

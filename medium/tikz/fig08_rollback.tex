@@ -1,0 +1,14 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 11mm]
+\node[title] (t) {Rollback protects a useful partial answer from destructive retrieval};
+\node[bluebox, below=11mm of t, text width=4.1cm] (old) {Committed evidence\\$e_A$: operand 1\\$e_B$: scale};
+\node[purplebox, right=of old, text width=4.1cm] (retry) {New retrieval\\finds operand 2\\but evicts $e_A$};
+\node[redbox, right=of retry, text width=4.1cm] (fail) {Verifier detects\\loss of prior support};
+\draw[arrow](old)--(retry);\draw[arrow](retry)--(fail);
+\node[greenbox, below=14mm of retry, text width=5.0cm] (keep) {ROLLBACK\\Active state remains $\{e_A,e_B\}$};
+\draw[redarrow](fail.south)|-node[smalllabel,below,pos=.68]{candidate discarded}(keep.east);
+\draw[greenarrow](keep.west)-|node[smalllabel,below,pos=.27]{durable baseline}(old.south);
+\end{tikzpicture}
+\end{document}

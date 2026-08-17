@@ -1,0 +1,14 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=9mm and 11mm]
+\node[title] (t) {Static RAG has no endogenous recovery state};
+\node[bluebox, below=10mm of t] (q1) {Question}; \node[box,right=of q1](r1){Retrieve}; \node[amberbox,right=of r1](e1){Top-$k$ evidence}; \node[box,right=of e1](g1){Generate}; \node[redbox,right=of g1](bad){Wrong / unsupported};
+\draw[arrow](q1)--(r1);\draw[arrow](r1)--(e1);\draw[arrow](e1)--(g1);\draw[arrow](g1)--(bad);
+\node[subtitle, below=7mm of bad, xshift=-4.5cm] {The pipeline has no formal state to compare, protect or restore.};
+\node[title, below=20mm of q1, xshift=4.6cm] (t2) {Healing adds state-transition semantics};
+\node[bluebox, below=10mm of t2, xshift=-4.7cm](q2){Question}; \node[box,right=of q2](s0){State $s_t$}; \node[purplebox,right=of s0](pr){Repair proposal}; \node[box,right=of pr](vr){Verify}; \node[greenbox,right=of vr](ok){$s_{t+1}$};
+\draw[arrow](q2)--(s0);\draw[arrow](s0)--(pr);\draw[arrow](pr)--(vr);\draw[greenarrow](vr)--node[smalllabel,above]{commit}(ok);
+\node[redbox,below=9mm of vr](roll){rollback}; \draw[redarrow](vr)--(roll); \draw[redarrow](roll.west)-|node[smalllabel,below,pos=.3]{keep $s_t$}(s0.south);
+\end{tikzpicture}
+\end{document}

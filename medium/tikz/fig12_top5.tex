@@ -1,0 +1,12 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[width=12.6cm,height=8.2cm,title={Top-5 retrieval begins in a failure-prone regime},title style={font=\sffamily\bfseries\large,yshift=3mm},ybar,bar width=8pt,ymin=0,ymax=62, ylabel={Percent}, symbolic x coords={Development,Validation,Test},xtick=data,legend style={at={(0.5,0.92)},anchor=north,legend columns=3,draw=none,font=\sffamily\scriptsize},tick label style={font=\sffamily\small},label style={font=\sffamily\small},nodes near coords,nodes near coords style={font=\sffamily\scriptsize},grid=major,grid style={draw=linegray!45}]
+\addplot[fill=blue!35,draw=blue] coordinates {(Development,45.80) (Validation,46.37) (Test,42.20)};
+\addplot[fill=amber!35,draw=amber] coordinates {(Development,51.19) (Validation,52.88) (Test,50.00)};
+\addplot[fill=green!35,draw=green] coordinates {(Development,48.49) (Validation,48.40) (Test,46.60)};
+\legend{Requirement recall,Any evidence,Full evidence}
+\end{axis}
+\end{tikzpicture}
+\end{document}

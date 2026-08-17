@@ -1,0 +1,9 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[width=12.4cm,height=8.0cm,title={Architectural compression produced the large speed gain},title style={font=\sffamily\bfseries\large,yshift=3mm},ybar,bar width=24pt,ymin=0,ymax=42,symbolic x coords={Stage 1,Stage 2,Terminal resolver},xtick=data,ylabel={Seconds per case},tick label style={font=\sffamily\small},label style={font=\sffamily\small},nodes near coords,nodes near coords style={font=\sffamily\small},grid=major,grid style={draw=linegray!45}]
+\addplot[fill=blue!35,draw=blue] coordinates {(Stage 1,25.45)(Stage 2,36.29)(Terminal resolver,3.55)};
+\end{axis}
+\end{tikzpicture}
+\end{document}

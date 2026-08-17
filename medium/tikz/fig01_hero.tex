@@ -1,0 +1,19 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 11mm]
+\node[title] (t) {Self-Healing RAG is a protocol for changing retrieval state safely};
+\node[subtitle, below=4mm of t] (s) {Observable failure, guarded repair, rollback safety and finite termination};
+\node[bluebox, below=11mm of s, minimum width=2.6cm] (q) {Question};
+\node[box, right=of q, minimum width=2.6cm] (r) {Retrieve};
+\node[amberbox, right=of r, minimum width=2.9cm] (o) {Observe\\residual};
+\node[purplebox, right=of o, minimum width=2.9cm] (p) {Propose\\repair};
+\draw[arrow](q)--(r);\draw[arrow](r)--(o);\draw[arrow](o)--(p);
+\node[box, below=13mm of p, minimum width=2.7cm] (v) {Verify};
+\node[greenbox, left=of v, minimum width=2.7cm] (c) {Commit};
+\node[ghost, left=of c, minimum width=2.8cm] (a) {Answer /\\escalate};
+\node[redbox, right=of v, minimum width=2.7cm] (rb) {Rollback};
+\draw[arrow](p)--(v);\draw[greenarrow](v)--(c);\draw[arrow](c)--(a);\draw[redarrow](v)--(rb);
+\node[smalllabel, below=4mm of rb] {durable state unchanged};
+\end{tikzpicture}
+\end{document}

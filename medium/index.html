@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-Healing RAG: A Protocol for Retrieval That Can Repair Itself</title>
+<meta name="author" content="Angshul Majumdar">
+<meta name="description" content="Self-Healing RAG is a transaction protocol over retrieval state: observable failure, requirement residuals, guarded repair, commit/rollback, cycle detection and bounded termination. The financial-document QA system is a worked implementation, not the definition of the protocol.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Self-Healing RAG: A Protocol for Retrieval That Can Repair Itself">
+<meta property="og:description" content="The protocol is the contribution. The financial-document QA system is the worked example.">
+<meta property="og:image" content="https://angshulmajumdar.github.io/Self-Healing-RAG/figures/fig01_hero.png">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{--ink:#17202a;--muted:#667085;--line:#e4e7ec;--paper:#fff;--soft:#f8fafc;--blue:#2463eb;--green:#16804a;--amber:#b56800;--red:#b42318}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Georgia,"Times New Roman",serif;font-size:20px;line-height:1.62}
+main{max-width:920px;margin:0 auto;padding:58px 28px 90px}
+h1,h2,h3{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;line-height:1.16;letter-spacing:-.025em;color:var(--ink)}
+h1{font-size:clamp(2.55rem,6vw,4.65rem);margin:0 0 16px}
+h2{font-size:2.05rem;margin:64px 0 20px;padding-top:6px}
+h3{font-size:1.35rem;margin:36px 0 10px}
+p{margin:0 0 22px}
+a{color:#2458c6;text-decoration-thickness:1px;text-underline-offset:3px}
+.dek{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:1.35rem;line-height:1.42;color:#344054;margin:0 0 18px}
+.byline{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--muted);font-size:.92rem;margin-bottom:36px}
+.kicker{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:var(--blue);font-size:.78rem;margin-bottom:14px}
+.lede{font-size:1.13em}
+hr{border:0;border-top:1px solid var(--line);margin:52px 0}
+blockquote{margin:34px 0;padding:5px 0 5px 22px;border-left:4px solid var(--ink);font-size:1.08em}
+.callout{margin:32px 0;padding:20px 22px;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:.95rem;line-height:1.55}
+.callout strong{color:var(--ink)}
+.equation{margin:26px auto;padding:17px 20px;border:1px solid var(--line);border-radius:10px;background:#fbfcfe;text-align:center;font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:.94rem;overflow-wrap:anywhere}
+figure{margin:42px 0 46px}
+figure img{display:block;width:100%;height:auto;margin:0 auto;border:0}
+figcaption{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;text-align:center;color:var(--muted);font-size:.79rem;line-height:1.45;margin:12px auto 0;max-width:760px}
+ul,ol{margin:0 0 24px 1.25em;padding-left:.8em}
+li{margin:8px 0}
+code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:.88em;background:#f4f6f8;border-radius:5px;padding:.12em .32em}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:30px 0}
+.stat{border:1px solid var(--line);border-radius:10px;padding:16px;text-align:center;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.stat b{display:block;font-size:1.55rem;margin-bottom:3px}
+.stat span{color:var(--muted);font-size:.8rem}
+.refs{font-size:.9rem;line-height:1.48;color:#344054}
+.refs li{margin-bottom:12px}
+.footer-note{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--muted);font-size:.82rem;margin-top:54px}
+@media (max-width:680px){body{font-size:18px}main{padding:34px 18px 70px}h2{font-size:1.7rem;margin-top:50px}.dek{font-size:1.18rem}.statgrid{grid-template-columns:1fr}figure{margin:34px -8px 38px}figcaption{padding:0 10px}}
+</style>
+</head>
+<body>
+<main>
+<article>
+<div class="kicker">Retrieval-Augmented Generation • Systems • Protocol Design</div>
+<h1>Self-Healing RAG: A Protocol for Retrieval That Can Repair Itself</h1>
+<p class="dek">The protocol is the contribution. The financial-document QA system is a worked implementation. Neither the benchmark, nor the vector database, nor the language model defines Self-Healing RAG.</p>
+<p class="byline">Angshul Majumdar • IIIT-Delhi • August 2026</p>
+
+<figure>
+<img src="figures/fig01_hero.png" alt="Self-Healing RAG protocol: question, retrieval, residual observation, repair proposal, verification, commit or rollback, and answer or escalation">
+<figcaption>Figure 1. The shortest useful description of the protocol: observe retrieval failure, propose a bounded repair, verify it, commit only an admissible improvement, and otherwise roll back.</figcaption>
+</figure>
+
+<p class="lede">Most RAG diagrams end exactly where the difficult engineering begins. They show a question entering a retriever, a handful of chunks entering a prompt, and an answer coming out. That picture is fine when retrieval succeeds. When retrieval misses one operand, retrieves the wrong period, loses a previously useful passage, or repeatedly returns the same inadequate context, the pipeline has no native semantics for what should happen next.</p>
+
+<p>That is the problem Self-Healing RAG is meant to isolate. It is not another dataset. It is not a fine-tuned model. It is not even a particular retrieval algorithm. It is a <strong>protocol for governing changes to retrieval state</strong>.</p>
+
+<blockquote><strong>Self-healing means observable failure + targeted repair + independent verification + commit/rollback + finite termination.</strong></blockquote>
+
+<p>The proof-of-concept repository makes those control semantics deliberately explicit. A second repository explores a much cheaper from-scratch implementation of the same idea. The two should be read as protocol and worked implementation, not as two model checkpoints.</p>
+
+<div class="callout"><strong>Repositories.</strong> Protocol and frozen v0.1 proof-of-concept: <a href="https://github.com/AngshulMajumdar/Self-Healing-RAG">Self-Healing-RAG</a>. Compact from-scratch implementation direction: <a href="https://github.com/AngshulMajumdar/Self-Healing-RAG-V2">Self-Healing-RAG-V2</a>.</div>
+
+<h2>Static RAG has a recovery problem, not merely a relevance problem</h2>
+<p>A static RAG pipeline can be written schematically as <code>q → E → y</code>: a question produces an evidence set, and the evidence set produces an answer. The abstraction does not say whether the evidence is sufficient for this question, what part is missing, whether a retry is an improvement, or how to restore the last known-good context after a bad retry.</p>
+
+<figure>
+<img src="figures/fig02_static_vs_healing.png" alt="Comparison of static RAG and healing RAG state-transition semantics">
+<figcaption>Figure 2. A retry becomes a protocol only when the current state and proposed state can be compared, accepted, rejected and restored.</figcaption>
+</figure>
+
+<p>Modern adaptive RAG systems already introduce retrieval timing, self-reflection, critique, query rewriting, corrective retrieval, reranking and agentic control. Those are important predecessors. The narrower systems question here is different: <em>what is the admissibility rule for changing the evidence state?</em></p>
+
+<p>The Self-Healing RAG answer is transactional. A new retrieval result is only a proposal. It does not automatically replace the current evidence. The proposal must be evaluated against the current state. If it passes the guards, it is committed. If it fails, it is rolled back.</p>
+
+<h2>The prompt is not the state</h2>
+<p>For a question <code>q</code>, the v0.1 protocol represents the operational state as <code>s = (q, E, R, h, τ)</code>. Here <code>E</code> is active evidence, <code>R</code> is a frozen requirement vector, <code>h</code> records visited evidence signatures, and <code>τ</code> is the durable transaction history.</p>
+
+<figure>
+<img src="figures/fig03_state.png" alt="Operational state q E R h tau">
+<figcaption>Figure 3. The state survives individual prompts. That persistence is what makes rollback, cycle detection and auditing possible.</figcaption>
+</figure>
+
+<p>This distinction sounds pedantic until a system retries more than once. A prompt is a transient serialization. It does not automatically remember which requirements were already supported, which candidate was rejected five steps ago, or whether the system has returned to an earlier evidence configuration. A healing controller needs those facts to persist independently of the next LLM call.</p>
+
+<p>Durable state also changes debugging. Instead of asking, “Why did the model answer this way?”, one can ask a sequence of narrower questions: What evidence was active? Which requirement was open? Which action was proposed? What did verification say? Why did the proposal commit or roll back? Which terminal condition ended the case?</p>
+
+<h2>Retrieval sufficiency is query-specific</h2>
+<p>Similarity scores alone do not tell us whether a retrieved set is sufficient to answer a particular question. A financial question may need two operands, a year, a unit and a scale. Five highly relevant passages can still be useless if they all omit the denominator.</p>
+
+<figure>
+<img src="figures/fig04_requirements.png" alt="Example requirement decomposition for a percentage increase question">
+<figcaption>Figure 4. Requirement decomposition turns “relevant context” into a concrete inventory of what the answer actually needs.</figcaption>
+</figure>
+
+<p>The controller therefore decomposes a question into evidence requirements. For a percentage change, the old value and new value are separate requirements. If scale or period determines which number is admissible, those constraints belong in the requirement descriptions. The requirement identities are frozen during a transaction. A verifier may update support status, but it may not quietly delete a difficult requirement or rewrite the problem after seeing a proposal.</p>
+
+<p>This is crucial. Without frozen requirements, a “better” state can be manufactured simply by changing what counts as success.</p>
+
+<h2>A residual gives repair a monotone objective</h2>
+<p>v0.1 uses three operational requirement states: supported, uncertain and missing. They receive costs 0, 1 and 2 respectively. The residual is the sum of those costs.</p>
+
+<div class="equation">c(S)=0, &nbsp; c(U)=1, &nbsp; c(M)=2 &nbsp;&nbsp;&nbsp; and &nbsp;&nbsp;&nbsp; ρ(s)=Σᵢ c(zᵢ)</div>
+
+<figure>
+<img src="figures/fig05_residual.png" alt="Discrete residual costs supported zero uncertain one missing two">
+<figcaption>Figure 5. The residual is deliberately simple: an integer measure of unresolved evidence severity, not a learned confidence score.</figcaption>
+</figure>
+
+<p>The residual does not use the benchmark answer. During inference, the controller does not need to know whether its final answer matches a hidden label. It needs to know whether its evidence state has measurably improved. That separation keeps gold evaluation outside the control loop.</p>
+
+<p>A discrete objective also gives a useful intermediate notion of progress. A case can remain open while moving from two missing requirements to one uncertain requirement. Binary success/failure would throw that information away.</p>
+
+<h2>A repair is a transaction</h2>
+<p>A repair attempt is represented by a transaction <code>T = (s, a, p, v, d, s*)</code>: current durable state, selected action, tentative proposal, verification result, decision, and resulting durable state.</p>
+
+<figure>
+<img src="figures/fig06_transaction.png" alt="Repair transaction with durable state action proposal verification commit and rollback">
+<figcaption>Figure 6. The proposal remains tentative until verification finishes. This is the central difference between retrying and transacting.</figcaption>
+</figure>
+
+<p>That small change in semantics is powerful. The retriever is free to be aggressive because the controller is conservative. Semantic search, lexical search, document-local expansion, query reformulation or another retrieval strategy may all propose evidence. None of them receives the right to mutate durable state merely because it returned results.</p>
+
+<p>“Try another query” is an action. “Replace the current context with whatever came back” is a policy. Self-Healing RAG separates the two.</p>
+
+<h2>Lower residual is not enough</h2>
+<p>Suppose a new retrieval finds a missing operand but evicts the only evidence supporting another requirement. The aggregate residual can fall while the system forgets something it already knew. The commit rule therefore has a second guard: previously supported requirements must remain supported.</p>
+
+<div class="equation">commit(s → s′) iff ρ(s′) &lt; ρ(s) &nbsp; and &nbsp; S(s) ⊆ S(s′)</div>
+
+<figure>
+<img src="figures/fig07_commit_guard.png" alt="Commit guard requires residual decrease and preservation of supported requirements">
+<figcaption>Figure 7. Candidate B has the lower residual, but it loses previously supported requirement r₁, so it must be rejected.</figcaption>
+</figure>
+
+<p>This is evidence monotonicity at the semantic level. The protocol does not demand that a particular chunk ID remain forever. Evidence can be replaced. What must survive is the support already established for the question.</p>
+
+<figure>
+<img src="figures/fig08_rollback.png" alt="Rollback protects a useful partial answer when a retry destroys previous support">
+<figcaption>Figure 8. A failed retrieval experiment is disposable. The last committed state remains authoritative.</figcaption>
+</figure>
+
+<p>Rollback is therefore not an exceptional error path. It is expected behavior. A repair mechanism that never rolls back is probably not enforcing a meaningful improvement contract.</p>
+
+<h2>Finite autonomy requires explicit stopping rules</h2>
+<p>A loop that can retrieve again is not yet autonomous. It also needs to know when retrieval has become futile. v0.1 tracks evidence signatures so that exact state cycles can be detected. It also bounds the available repair actions. Since the residual is a non-negative integer and each committed transition strictly lowers it, the controller cannot make infinitely many accepted improvements.</p>
+
+<figure>
+<img src="figures/fig09_termination.png" alt="Cycle detection and terminal states for self-healing RAG">
+<figcaption>Figure 9. Closure is one terminal state. Exhaustion, cycle, stagnation, corpus insufficiency and technical failure are also legitimate terminal outcomes.</figcaption>
+</figure>
+
+<p>This matters because a reliable system must be allowed to say, “bounded recovery ended without verified closure.” Otherwise self-healing becomes a euphemism for unbounded compute followed by an answer that may still be unsupported.</p>
+
+<p>The proof of concept later adds a terminal best-effort resolver so that every validation item receives a prediction for benchmark scoring. Those cases are labeled separately. Benchmark coverage is not silently redefined as protocol-level verified closure.</p>
+
+<h2>The protocol is not the implementation</h2>
+<p>At this point the separation should be clear. The protocol requires an observable evidence state, a query-specific notion of residual, tentative repair proposals, independent verification, commit/rollback, and bounded termination. It does <em>not</em> require Chroma, MiniLM, Qwen, financial documents, cosine search or even a vector database.</p>
+
+<figure>
+<img src="figures/fig10_protocol_boundary.png" alt="Protocol invariants versus one concrete implementation">
+<figcaption>Figure 10. The left side is the contribution being generalized. The right side is one implementation used to exercise it.</figcaption>
+</figure>
+
+<p>This is why forcing the repositories into a model-hub abstraction is misleading. There are no new trained weights that define Self-Healing RAG. The identity of the system lives in the control contract.</p>
+
+<hr>
+
+<h2>The worked example: financial-document question answering</h2>
+<p>A protocol needs a setting in which retrieval failure is common enough to exercise it. The v0.1 proof of concept uses a strict local corpus built around the TAT-DQA/TAT-QA financial-document setting. The frozen corpus contains 277 documents, 1,599 questions, 14,542 total units, and 3,838 searchable paragraph and table-row evidence records.</p>
+
+<figure>
+<img src="figures/fig11_data_lineage.png" alt="Data lineage and document-disjoint split for the worked financial QA implementation">
+<figcaption>Figure 11. The question split is document-disjoint: 963 development, 312 validation and 324 test questions.</figcaption>
+</figure>
+
+<p>The source document is known to document-local repair, so a question-level random split would be too weak. Document identity is assigned before the split to prevent the same source document from crossing development and validation boundaries.</p>
+
+<p>The reference implementation uses 384-dimensional <code>sentence-transformers/all-MiniLM-L6-v2</code> embeddings in a persistent Chroma store. The v0.1 generator is Qwen2.5-7B-Instruct, run locally in 4-bit NF4 quantization on an RTX 4060 laptop GPU with 8 GiB VRAM. Those details make the experiment reproducible; they do not define the protocol.</p>
+
+<h2>Why healing is actually needed in this example</h2>
+<p>At the operating depth of top-5, retrieval is materially incomplete. Development requirement recall is 45.80%, validation 46.37%, and test 42.20%. Full-evidence coverage is 48.49%, 48.40%, and 46.60% respectively.</p>
+
+<figure>
+<img src="figures/fig12_top5.png" alt="Top-5 retrieval requirement recall any-evidence and full-evidence rates across development validation and test">
+<figcaption>Figure 12. Roughly half the questions do not begin with complete evidence at top-5. Retrieval failure is the normal operating regime, not an edge case.</figcaption>
+</figure>
+
+<p>The distinction between <strong>any evidence</strong> and <strong>full evidence</strong> is important. On validation at top-5, any-evidence rate is 52.88%, while full-evidence rate is 48.40%. At top-20, those become 69.23% and 63.78%. Finding something relevant does not imply that all required operands are present.</p>
+
+<p>One brute-force response is to increase <code>k</code> for everyone. At top-50, validation requirement recall reaches 70.04% and full-evidence coverage 70.83%. But this grows context, cost and noise for every question. A healing protocol instead starts with a narrower state and spends additional retrieval budget only on open cases.</p>
+
+<h2>The development run shows real transactional behavior</h2>
+<p>The residual gives us a direct audit trail of accepted state changes. Across the major development stages it falls from 2,383 to 1,607, then to 1,064, then to 915.</p>
+
+<figure>
+<img src="figures/fig13_residual_trajectory.png" alt="Aggregate residual decreases from 2383 to 1607 to 1064 to 915">
+<figcaption>Figure 13. Rejected proposals never replace the active state, so the accepted-state residual trajectory is monotone.</figcaption>
+</figure>
+
+<p>Loop 1 targeted unresolved requirements and, after verifier-failure recovery, committed 323 proposals while rolling back 442. Loop 2 changed the action space to document-local repair and committed 233 while rolling back 345.</p>
+
+<figure>
+<img src="figures/fig14_transactions.png" alt="Committed versus rolled back repair proposals in Loop 1 and Loop 2">
+<figcaption>Figure 14. Rollback dominates both repair loops. That is evidence that proposals were not being trusted automatically.</figcaption>
+</figure>
+
+<p>The high rollback count is a feature of the protocol, not an embarrassment to hide. If every retry commits, the controller is not protecting state; it is merely mutating it.</p>
+
+<p>The later autonomous retrieval controller begins with 557 closed and 406 open development cases. It closes 29 more and reduces residual from 1,064 to 915 before the remaining 377 cases are marked retrieval-exhausted. That modest final gain is informative: once the cheap repairs are gone, repeatedly invoking semantic machinery has sharply diminishing returns.</p>
+
+<h2>The most useful v0.1 result was negative</h2>
+<p>The 312-case document-disjoint validation run was deliberately isolated from gold feedback. Gold answers, answer type and scale were quarantined until predictions had been durably frozen. The controller saw question text, retrieval records, document identity and its own state—not the answer key.</p>
+
+<p>Stage 1 attempted all 312 cases from the original top-5 evidence. Only 39 produced an answer on this path; 273 were routed to healing. Stage 2 expanded same-document evidence for those 273 cases and recovered exactly one additional answer. The remaining 272 cases were later handled by a compact terminal best-effort resolver.</p>
+
+<figure>
+<img src="figures/fig15_validation_route.png" alt="Validation routing from 312 cases to 39 Stage 1 answers 273 healing routes 1 additional answer and 272 terminal best-effort answers">
+<figcaption>Figure 15. The logically explicit controller worked as a proof of concept, but the expensive LLM-mediated healing stage recovered only 1 of 273 routed validation cases.</figcaption>
+</figure>
+
+<p>That negative result is more valuable than a polished demo. It shows that a principled control graph can still be a poor execution graph.</p>
+
+<p>Stage 1 averaged 25.45 seconds per validation case. Stage 2 averaged 36.29 seconds per healing case. The terminal resolver averaged 3.55 seconds per unresolved case, processing all 272 in 15.82 minutes on the same laptop GPU.</p>
+
+<figure>
+<img src="figures/fig16_runtime.png" alt="Runtime seconds per case 25.45 Stage 1 36.29 Stage 2 and 3.55 terminal resolver">
+<figcaption>Figure 16. The large speed gain came from architectural compression, not from changing the 7B model family or hardware.</figcaption>
+</figure>
+
+<p>The complete frozen v0.1 validation lineage ends with 312/312 terminal predictions, normalized exact match 0.2660, mean token F1 0.5546, and 857 accumulated Qwen calls, or 2.747 calls per validation question. The release does not present those accuracy numbers as the endpoint. They are measurements of a control prototype whose main purpose was to expose the architecture and its bottlenecks.</p>
+
+<h2>v0.2: preserve the protocol, collapse the call graph</h2>
+<p>The from-scratch v0.2 notebook follows the obvious lesson from v0.1: use language models where semantic generation is needed, not as generic control-flow glue.</p>
+
+<p>Its hot path is deterministic document-local hybrid retrieval, one Qwen answer pass, deterministic grounding and arithmetic verification, evidence expansion only on failure, then at most one Qwen repair pass and another deterministic check. There is no Qwen observer conversation, no Qwen verifier conversation, no Qwen query-rewrite conversation, and no unbounded iterative repair loop.</p>
+
+<figure>
+<img src="figures/fig17_v01_v02.png" alt="Comparison of v0.1 LLM-heavy control graph and v0.2 deterministic retrieval and verification with bounded LLM solving">
+<figcaption>Figure 17. v0.2 is not a different protocol. It is a cheaper implementation of the same control idea.</figcaption>
+</figure>
+
+<p>For retrieval, v0.2 fuses document-local dense similarity and lexical ranking using reciprocal-rank fusion. It then uses a compact answer contract: final answer, cited evidence IDs, and an arithmetic expression when calculation is required. The arithmetic expression is restricted to safe operators and checked deterministically against numbers present in the cited evidence.</p>
+
+<p>This is the architectural direction suggested by the v0.1 measurements: deterministic retrieval fusion, deterministic verification, prompt compaction and batching first; additional agent roles only if they can justify their cost.</p>
+
+<h2>A useful systems invariant: at most two semantic solves</h2>
+<p>If every one of <code>N</code> questions receives one initial solve, and only the <code>H ≤ N</code> questions that fail deterministic verification receive one repair solve, then semantic generation calls obey a hard ceiling.</p>
+
+<div class="equation">C = N + H ≤ 2N</div>
+
+<figure>
+<img src="figures/fig18_call_bound.png" alt="Call bound N plus H less than or equal to 2N">
+<figcaption>Figure 18. For 312 validation questions, the absolute ceiling would be 624 semantic generation passes.</figcaption>
+</figure>
+
+<p>This is a systems property, not an average-case hope. It does not guarantee low latency by itself, but it prevents the control plane from silently turning one question into an open-ended conversation among several model roles.</p>
+
+<h2>What can change without changing the protocol?</h2>
+<p>Almost everything underneath it. A dense retriever can become sparse or hybrid. Chroma can be replaced by another evidence store. The generator can be local, hosted, larger, smaller or specialized. The verifier can be deterministic, model-based or hybrid. The application can move from financial QA to scientific search, legal document QA, code retrieval or an internal knowledge base.</p>
+
+<figure>
+<img src="figures/fig19_swap_components.png" alt="Swappable retriever evidence store generator and verifier under the same transaction contract">
+<figcaption>Figure 19. What must remain stable is the state-transition contract: observe, propose, verify, commit/rollback and terminate.</figcaption>
+</figure>
+
+<p>The requirement abstraction will be domain-specific. A legal question may require jurisdiction, date and clause. A code-retrieval task may require symbol definition, caller and version. A scientific claim may require method, population and numerical result. The residual is therefore not meant to be one universal hand-designed formula. What matters is that the controller has a query-specific, externally inspectable notion of unresolved evidence.</p>
+
+<h2>How I would implement the protocol in a new RAG system</h2>
+<p>The minimal recipe is short enough to be useful.</p>
+
+<figure>
+<img src="figures/fig20_recipe.png" alt="Six-step recipe for implementing the self-healing RAG protocol">
+<figcaption>Figure 20. A minimal implementation recipe. The expensive parts can change; the transaction boundary should not.</figcaption>
+</figure>
+
+<ol>
+<li><strong>Define durable evidence state.</strong> Give evidence stable IDs. Store the currently committed set independently of the prompt.</li>
+<li><strong>Define query-specific requirements.</strong> State what must be supported for this question to close, and freeze those requirement identities during repair.</li>
+<li><strong>Choose a bounded action set.</strong> For example: lexical search, dense search, document expansion, metadata filters, or a single query rewrite.</li>
+<li><strong>Verify proposals independently.</strong> Do not let the action that proposed a state certify its own success without an external guard.</li>
+<li><strong>Commit only admissible improvement.</strong> Require measurable progress and protection of already-supported requirements.</li>
+<li><strong>Rollback and terminate explicitly.</strong> Record cycles, exhaustion, stagnation, insufficiency and technical failures as distinct outcomes.</li>
+</ol>
+
+<h2>What the protocol does not solve</h2>
+<p>Transactionality does not magically make retrieval accurate. It does not guarantee that the requirement decomposition is correct. It does not guarantee that a verifier is sound. It can be overly conservative: a strict one-step residual decrease may reject a useful lateral move that would enable a larger improvement two steps later. Semantic cycle detection is harder than exact evidence-ID cycle detection. The best residual design may be domain-specific.</p>
+
+<p>Those are research problems, not reasons to hide the control state. In fact, making the state explicit makes the failure modes easier to study. We can separately measure requirement quality, repair proposal quality, verifier precision, rollback frequency, cycle rate, terminal class distribution, call complexity and answer accuracy.</p>
+
+<p>There is also an important distinction between <strong>protocol correctness</strong> and <strong>production efficiency</strong>. v0.1 deliberately prioritized explicit control semantics and paid too much for them. v0.2 moves toward the opposite end: deterministic machinery on the hot path and the language model reserved for bounded semantic solving. A mature implementation needs both.</p>
+
+<h2>Where this sits relative to adaptive and self-correcting RAG</h2>
+<p>The phrase “self-healing RAG” predates this repository, and the broader literature already contains active retrieval, self-reflection, corrective retrieval, self-evaluation, query reformulation and agentic orchestration. The repository does not claim ownership of that phrase or of adaptive recovery in general.</p>
+
+<p>Its narrower claim is architectural: a RAG controller organized explicitly as a transaction system over persistent evidence state, with a discrete requirement residual, protected support, strict-improvement commit/rollback, durable transaction history, cycle detection and bounded autonomous escalation. That boundary is intentionally falsifiable. An earlier implementation exhibiting the same combination would narrow the claim.</p>
+
+<p>That is a healthier way to frame the contribution than saying the system is simply “more agentic.” The protocol can be compared, implemented, falsified and improved without depending on a particular model brand.</p>
+
+<h2>The main lesson</h2>
+<p>RAG reliability is often discussed as if the only levers are better embeddings, better reranking and stronger language models. Those matter. But once a system is allowed to repair itself, another question becomes unavoidable: <strong>what governs state change?</strong></p>
+
+<p>Self-Healing RAG proposes a concrete answer. Retrieval failure becomes observable state. Repair is tentative. Verification is separate from proposal. Improvement must satisfy invariants. Rejected experiments roll back. Repeated states and exhausted actions terminate. The system may succeed, abstain or escalate, but it does not silently mutate its way through an unbounded sequence of contexts.</p>
+
+<blockquote>The important object is not the model. It is the contract that decides when new evidence is allowed to replace old evidence.</blockquote>
+
+<p>That is why this belongs naturally as a protocol plus executable examples. The proof of concept shows the semantics in the open, including where they are slow and where they fail. The next implementations can become much faster without changing the idea they are implementing.</p>
+
+<hr>
+<h2>Selected references</h2>
+<ol class="refs">
+<li>Lewis et al., “Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks,” NeurIPS 2020. <a href="https://arxiv.org/abs/2005.11401">arXiv:2005.11401</a>.</li>
+<li>Karpukhin et al., “Dense Passage Retrieval for Open-Domain Question Answering,” EMNLP 2020. <a href="https://arxiv.org/abs/2004.04906">arXiv:2004.04906</a>.</li>
+<li>Reimers and Gurevych, “Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks,” EMNLP-IJCNLP 2019. <a href="https://aclanthology.org/D19-1410/">ACL Anthology</a>.</li>
+<li>Zhu et al., “TAT-QA: A Question Answering Benchmark on a Hybrid of Tabular and Textual Content in Finance,” ACL-IJCNLP 2021. <a href="https://aclanthology.org/2021.acl-long.254/">ACL Anthology</a>.</li>
+<li>Jiang et al., “Active Retrieval Augmented Generation,” 2023. <a href="https://arxiv.org/abs/2305.06983">arXiv:2305.06983</a>.</li>
+<li>Asai et al., “Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection,” 2023. <a href="https://arxiv.org/abs/2310.11511">arXiv:2310.11511</a>.</li>
+<li>Yan et al., “Corrective Retrieval Augmented Generation,” 2024. <a href="https://arxiv.org/abs/2401.15884">arXiv:2401.15884</a>.</li>
+<li>Es et al., “RAGAS: Automated Evaluation of Retrieval Augmented Generation,” 2023. <a href="https://arxiv.org/abs/2309.15217">arXiv:2309.15217</a>.</li>
+<li>Saad-Falcon et al., “ARES: An Automated Evaluation Framework for Retrieval-Augmented Generation Systems,” 2023. <a href="https://arxiv.org/abs/2311.09476">arXiv:2311.09476</a>.</li>
+<li>Kephart and Chess, “The Vision of Autonomic Computing,” <em>Computer</em>, 2003.</li>
+<li>Salehie and Tahvildari, “Self-Adaptive Software: Landscape and Research Challenges,” <em>ACM Transactions on Autonomous and Adaptive Systems</em>, 2009.</li>
+</ol>
+
+<p class="footer-note">This page is intentionally static and dependency-free so GitHub Pages can serve it directly and Medium can import the article from the public URL. All figures are pre-rendered PNGs compiled from the TikZ sources included in the repository.</p>
+</article>
+</main>
+</body>
+</html>

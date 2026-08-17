@@ -1,0 +1,9 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[width=13cm,height=8.0cm,title={Accepted transactions create a monotone residual audit trail},title style={font=\sffamily\bfseries\large,yshift=3mm},ymin=0,ymax=2600,xmin=-0.3,xmax=3.3,xtick={0,1,2,3},xticklabels={Initial,Loop 1,Loop 2,Controller},ylabel={Aggregate residual},tick label style={font=\sffamily\small},label style={font=\sffamily\small},grid=major,grid style={draw=linegray!45},nodes near coords,nodes near coords style={font=\sffamily\small}]
+\addplot[blue,very thick,mark=*,mark size=2.5pt,nodes near coords] coordinates {(0,2383)(1,1607)(2,1064)(3,915)};
+\end{axis}
+\end{tikzpicture}
+\end{document}

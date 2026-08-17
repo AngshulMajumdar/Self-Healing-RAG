@@ -1,0 +1,13 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=7mm]
+\node[title] (t) {Operational state: $s=(q,E,R,h,\tau)$};
+\node[bluebox, below=10mm of t, minimum width=13cm] (q) {$q$ --- immutable question};
+\node[box, below=of q, minimum width=13cm] (e) {$E$ --- active evidence IDs and records};
+\node[amberbox, below=of e, minimum width=13cm] (r) {$R$ --- frozen requirement identities + support status};
+\node[purplebox, below=of r, minimum width=13cm] (h) {$h$ --- visited evidence signatures for cycle detection};
+\node[ghost, below=of h, minimum width=13cm] (tau) {$\tau$ --- durable append-only transaction history};
+\node[subtitle, below=7mm of tau] {A prompt is a serialization of state. It is not the state itself.};
+\end{tikzpicture}
+\end{document}

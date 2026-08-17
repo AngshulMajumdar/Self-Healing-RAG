@@ -1,0 +1,14 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 13mm]
+\node[title] (t) {v0.1 validation exposed the cost of LLM-heavy control};
+\node[bluebox, below=11mm of t, text width=3.4cm] (all) {312\\validation cases};
+\node[greenbox, right=of all, text width=3.4cm] (fast) {39\\Stage-1 answers};
+\node[amberbox, below=12mm of all, text width=3.4cm] (heal) {273\\healing routes};
+\node[greenbox, right=of heal, text width=3.4cm] (one) {1\\additional answer};
+\node[redbox, below=12mm of heal, text width=3.4cm] (rem) {272\\still insufficient};
+\node[purplebox, right=of rem, text width=3.4cm] (term) {272\\terminal best-effort};
+\draw[greenarrow](all)--node[smalllabel,above]{fast path}(fast);\draw[arrow](all)--node[smalllabel,left]{RETRIEVE}(heal);\draw[greenarrow](heal)--node[smalllabel,above]{healed}(one);\draw[redarrow](heal)--node[smalllabel,left]{not healed}(rem);\draw[arrow](rem)--(term);
+\end{tikzpicture}
+\end{document}

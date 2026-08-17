@@ -1,0 +1,18 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=9mm and 11mm]
+\node[title] (t) {Worked example: document-disjoint financial QA};
+\node[subtitle, below=4mm of t] (sub) {Document identity is fixed before splitting; no source document crosses partitions.};
+\node[bluebox, below=11mm of sub, text width=3.4cm] (docs) {277\\documents};
+\node[box, right=of docs, text width=3.4cm] (q) {1,599\\questions};
+\node[amberbox, below=of docs, text width=3.4cm] (u) {14,542\\total units};
+\node[purplebox, right=of u, text width=3.4cm] (ev) {3,838\\searchable records};
+\draw[arrow](docs)--(q);\draw[arrow](docs)--(u);\draw[arrow](q)--(ev);\draw[arrow](u)--(ev);
+\node[ghost, right=16mm of q, text width=3.3cm] (split) {Split by\\document ID};
+\node[greenbox, right=12mm of split, text width=3.3cm] (dev) {Development\\963};
+\node[bluebox, below=of dev, text width=3.3cm] (val) {Validation\\312};
+\node[ghost, below=of val, text width=3.3cm] (test) {Test\\324};
+\draw[arrow](q)--(split);\draw[arrow](split)--(dev);\draw[arrow](split.east)--++(5mm,0)|-(val.west);\draw[arrow](split.east)--++(5mm,0)|-(test.west);
+\end{tikzpicture}
+\end{document}

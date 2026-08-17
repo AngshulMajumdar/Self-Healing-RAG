@@ -1,0 +1,16 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 10mm]
+\node[title] (t) {Repair is a transaction, not an overwrite};
+\node[bluebox, below=11mm of t, minimum width=2.9cm] (s) {Durable\\state $s$};
+\node[purplebox, right=of s, minimum width=2.9cm] (a) {Action\\$a$};
+\node[amberbox, right=of a, minimum width=3.1cm] (p) {Tentative\\proposal $p$};
+\node[box, right=of p, minimum width=2.9cm] (v) {Verify\\$v$};
+\draw[arrow](s)--(a);\draw[arrow](a)--(p);\draw[arrow](p)--(v);
+\node[greenbox, below left=12mm and -2mm of v, minimum width=3.0cm] (c) {COMMIT\\activate $s^*$};
+\node[redbox, below right=12mm and -2mm of v, minimum width=3.0cm] (r) {ROLLBACK\\keep $s$};
+\draw[greenarrow](v)--node[smalllabel,left]{admissible}(c);\draw[redarrow](v)--node[smalllabel,right]{reject}(r);
+\node[subtitle, below=10mm of c, xshift=2.2cm] {$T=(s,a,p,v,d,s^*)$, where $d\in\{\mathrm{commit},\mathrm{rollback}\}$.};
+\end{tikzpicture}
+\end{document}

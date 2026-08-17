@@ -1,0 +1,11 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}
+\begin{axis}[width=12cm,height=8.0cm,title={Rollback is normal behaviour, not an exceptional failure},title style={font=\sffamily\bfseries\large,yshift=3mm},ybar,bar width=18pt,ymin=0,ymax=500,symbolic x coords={Loop 1,Loop 2},xtick=data,ylabel={Repair proposals},legend style={at={(0.5,0.92)},anchor=north,legend columns=2,draw=none,font=\sffamily\small},tick label style={font=\sffamily\small},label style={font=\sffamily\small},nodes near coords,nodes near coords style={font=\sffamily\small},grid=major,grid style={draw=linegray!45}]
+\addplot[fill=green!35,draw=green] coordinates {(Loop 1,323)(Loop 2,233)};
+\addplot[fill=red!30,draw=red] coordinates {(Loop 1,442)(Loop 2,345)};
+\legend{Committed,Rolled back}
+\end{axis}
+\end{tikzpicture}
+\end{document}

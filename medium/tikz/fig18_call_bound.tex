@@ -1,0 +1,13 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 14mm]
+\node[title] (t) {A two-pass architecture gives a hard semantic-call ceiling};
+\node[bluebox, below=11mm of t, text width=4.0cm] (n) {$N$ questions\\all receive first solve};
+\node[amberbox, right=of n, text width=4.0cm] (h) {$H\le N$ failures\\receive one repair solve};
+\draw[arrow](n)--(h);
+\node[greenbox, below=13mm of n, xshift=2.7cm, text width=9.3cm] (c) {Total semantic model passes: $\displaystyle C=N+H\le 2N$};
+\draw[greenarrow](n.south)--++(0,-5mm)-|(c.west);\draw[greenarrow](h.south)--++(0,-5mm)-|(c.east);
+\node[ghost, below=10mm of c, text width=9.3cm] (ex) {312 validation questions $\Rightarrow$ absolute ceiling = 624 generation passes.};
+\end{tikzpicture}
+\end{document}

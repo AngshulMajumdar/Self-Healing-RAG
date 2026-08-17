@@ -1,0 +1,15 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=11mm and 11mm]
+\node[title] (t) {A candidate must improve the residual without destroying known support};
+\node[bluebox, below=11mm of t, text width=4.2cm] (cur) {Current state $s$\\$\rho(s)=4$\\supported: $\{r_1,r_3\}$};
+\node[greenbox, right=18mm of cur, text width=4.2cm] (good) {Candidate A\\$\rho(s')=2$\\supported: $\{r_1,r_2,r_3\}$};
+\node[redbox, below=12mm of good, text width=4.2cm] (bad) {Candidate B\\$\rho(s')=1$\\supported: $\{r_2,r_3\}$};
+\draw[greenarrow](cur)--node[smalllabel,above]{lower residual + preserve support}(good);
+\draw[redarrow](cur.south east)--node[smalllabel,below,sloped]{lower residual but loses $r_1$}(bad.west);
+\node[greenbox, right=13mm of good] (commit) {COMMIT}; \node[redbox, right=13mm of bad] (rollback) {ROLLBACK};
+\draw[greenarrow](good)--(commit);\draw[redarrow](bad)--(rollback);
+\node[subtitle, below=9mm of bad, xshift=-2.2cm] {$\mathrm{commit}\iff \rho(s')<\rho(s)\;\land\;S(s)\subseteq S(s')$};
+\end{tikzpicture}
+\end{document}

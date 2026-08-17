@@ -1,0 +1,17 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=8mm and 10mm]
+\node[title] (t) {Question-specific requirements expose partial retrieval failure};
+\node[bluebox, below=10mm of t, text width=12.8cm] (q) {Example: ``What was the percentage increase from 2019 revenue to 2020 revenue?''};
+\node[amberbox, below left=12mm and -1.2cm of q, text width=3.4cm] (r1) {$r_1$\\2019 revenue\\value + scale};
+\node[amberbox, right=9mm of r1, text width=3.4cm] (r2) {$r_2$\\2020 revenue\\value + scale};
+\node[amberbox, right=9mm of r2, text width=3.4cm] (r3) {$r_3$\\percentage-change\\operation};
+\node[greenbox, below=10mm of r1, text width=3.4cm] (s1) {supported};
+\node[redbox, below=10mm of r2, text width=3.4cm] (s2) {missing};
+\node[greenbox, below=10mm of r3, text width=3.4cm] (s3) {supported};
+\draw[arrow](q.south)--++(0,-4mm)-|(r1.north); \draw[arrow](q.south)--(r2.north); \draw[arrow](q.south)--++(0,-4mm)-|(r3.north);
+\draw[arrow](r1)--(s1);\draw[arrow](r2)--(s2);\draw[arrow](r3)--(s3);
+\node[subtitle, below=8mm of s2] {Semantic relevance is not enough: one missing operand leaves the state open.};
+\end{tikzpicture}
+\end{document}

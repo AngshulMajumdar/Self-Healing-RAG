@@ -1,0 +1,16 @@
+\documentclass[border=12pt]{standalone}
+\input{common.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 11mm]
+\node[title] (t) {The protocol is agnostic to the components underneath it};
+\node[bluebox, below=11mm of t, text width=3.6cm] (state) {State +\\requirements};
+\node[box, right=of state, text width=3.6cm] (retr) {Retriever\\dense / sparse / hybrid};
+\node[box, right=of retr, text width=3.6cm] (db) {Evidence store\\vector / lexical / graph};
+\draw[arrow](state)--(retr);\draw[arrow](retr)--(db);
+\node[box, below=13mm of db, text width=3.6cm] (gen) {Generator\\local / hosted / specialist};
+\node[box, left=of gen, text width=3.6cm] (ver) {Verifier\\rules / model / hybrid};
+\node[greenbox, left=of ver, text width=3.6cm] (term) {Commit / rollback\\termination};
+\draw[arrow](db)--(gen);\draw[arrow](gen)--(ver);\draw[greenarrow](ver)--(term);
+\node[subtitle, below=9mm of ver] {The transaction contract is the stable object.};
+\end{tikzpicture}
+\end{document}
