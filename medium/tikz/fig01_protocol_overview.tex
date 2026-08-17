@@ -1,0 +1,27 @@
+\documentclass[tikz,border=8pt]{standalone}
+\input{common_preamble.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=11mm and 13mm]
+\node[title] (ttl) {Self-Healing RAG: a protocol around retrieval state};
+\node[bluebox, below=10mm of ttl, minimum width=31mm] (q) {Question $q$};
+\node[box, right=of q, minimum width=31mm] (ret) {Retrieve};
+\node[amberbox, right=of ret, minimum width=38mm] (obs) {Observe\\requirements};
+\node[box, right=of obs, minimum width=34mm] (act) {Select\\repair};
+\node[box, below=14mm of act, minimum width=34mm] (prop) {Propose\\evidence};
+\node[amberbox, left=of prop, minimum width=38mm] (verify) {Verify\\candidate};
+\node[greenbox, left=of verify, minimum width=32mm] (commit) {Commit};
+\node[redbox, below=13mm of verify, minimum width=32mm] (rollback) {Rollback};
+\node[greenbox, below=13mm of commit, minimum width=32mm] (answer) {Answer /\\terminate};
+\draw[arrow] (q)--(ret);
+\draw[arrow] (ret)--(obs);
+\draw[arrow] (obs)--(act);
+\draw[arrow] (act)--(prop);
+\draw[arrow] (prop)--(verify);
+\draw[greenarrow] (verify)--node[label,above=9pt,pos=.62]{strict improvement}(commit);
+\draw[redarrow] (verify)--node[label,right]{otherwise}(rollback);
+\draw[greenarrow] (commit)--(answer);
+\draw[bluearrow] (commit.north) .. controls +(0,13mm) and +(-18mm,-11mm) .. node[label,above,pos=.46]{still open}(obs.south west);
+\draw[redarrow] (rollback.east) .. controls +(20mm,0) and +(0,-15mm) .. (act.south);
+\node[label, below=8mm of answer, text width=130mm] {The model is replaceable. The protocol is the durable state, residual, repair, transaction and termination semantics around it.};
+\end{tikzpicture}
+\end{document}

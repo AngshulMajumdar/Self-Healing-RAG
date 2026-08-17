@@ -1,0 +1,20 @@
+\documentclass[tikz,border=8pt]{standalone}
+\input{common_preamble.tex}
+\begin{document}
+\begin{tikzpicture}
+\node[title] at (7.2,5.9) {Rollback is expected behavior, not an exceptional failure};
+\begin{axis}[
+ at={(0.7cm,0.35cm)},anchor=south west,
+ width=12.9cm,height=4.9cm,
+ ymin=0,ymax=500,xmin=0.4,xmax=2.6,
+ xtick={1,2},xticklabels={Loop 1,Loop 2},
+ ylabel={Transactions},ymajorgrids=true,grid style={draw=linegray!45},
+ legend style={at={(0.98,0.97)},anchor=north east,legend columns=2,draw=none,font=\sffamily\footnotesize,fill=white},
+ tick label style={font=\sffamily\footnotesize},label style={font=\sffamily\small}
+]
+\addplot+[ybar,bar width=13pt,bar shift=-7pt,fill=green!35,draw=green] coordinates {(1,323)(2,233)};
+\addplot+[ybar,bar width=13pt,bar shift=7pt,fill=red!25,draw=red] coordinates {(1,442)(2,345)};
+\legend{Committed,Rolled back}
+\end{axis}
+\end{tikzpicture}
+\end{document}

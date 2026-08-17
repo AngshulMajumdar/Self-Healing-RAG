@@ -1,0 +1,13 @@
+\documentclass[tikz,border=8pt]{standalone}
+\input{common_preamble.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=8mm]
+\node[title] (ttl) {Operational state $s=(q,E,R,h,\tau)$};
+\node[bluebox, below=10mm of ttl, minimum width=125mm, minimum height=16mm] (q) {$q$ --- immutable user question};
+\node[box, below=of q, minimum width=125mm, minimum height=18mm] (e) {$E$ --- active evidence IDs and contents};
+\node[amberbox, below=of e, minimum width=125mm, minimum height=18mm] (r) {$R$ --- frozen requirement identities + support status};
+\node[ghost, below=of r, minimum width=125mm, minimum height=18mm] (h) {$h$ --- previously visited evidence signatures};
+\node[ghost, below=of h, minimum width=125mm, minimum height=18mm] (t) {$\tau$ --- durable append-only transaction history};
+\node[label, below=9mm of t, text width=125mm] {A prompt is ephemeral. This state survives retries and records what is supported, what was tried, and why a candidate was rejected.};
+\end{tikzpicture}
+\end{document}

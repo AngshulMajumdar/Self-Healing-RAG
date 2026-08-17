@@ -1,0 +1,19 @@
+\documentclass[tikz,border=8pt]{standalone}
+\input{common_preamble.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 12mm]
+\node[title] (ttl) {Validation exposed where the LLM-heavy controller was wasting compute};
+\node[bluebox, below=11mm of ttl, minimum width=40mm] (n) {312 validation\\questions};
+\node[box, right=of n, minimum width=42mm] (s1) {Stage 1\\top-5 + Qwen};
+\node[greenbox, right=of s1, minimum width=38mm] (fast) {39 fast-path\\answers};
+\draw[arrow] (n)--(s1); \draw[greenarrow] (s1)--(fast);
+\node[amberbox, below=17mm of s1, minimum width=42mm] (heal) {273 routed\\to healing};
+\draw[bluearrow] (s1)--(heal);
+\node[box, right=of heal, minimum width=42mm] (s2) {Stage 2\\expanded evidence + Qwen};
+\draw[arrow] (heal)--(s2);
+\node[greenbox, right=of s2, yshift=8mm, minimum width=38mm] (one) {1 verified\\commit};
+\node[redbox, right=of s2, yshift=-10mm, minimum width=38mm] (esc) {272\\escalated};
+\draw[greenarrow] (s2)--(one); \draw[redarrow] (s2)--(esc);
+\node[label, below=12mm of s2, text width=135mm] {The expensive second-stage model call produced only one additional verified commit. This became the engineering argument for deterministic control and a bounded two-pass design.};
+\end{tikzpicture}
+\end{document}

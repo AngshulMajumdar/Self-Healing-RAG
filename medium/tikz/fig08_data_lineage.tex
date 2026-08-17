@@ -1,0 +1,16 @@
+\documentclass[tikz,border=8pt]{standalone}
+\input{common_preamble.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 12mm]
+\node[title] (ttl) {Worked implementation: document-disjoint financial QA};
+\node[bluebox, below=11mm of ttl, minimum width=42mm] (corp) {277 documents\\1,599 questions\\14,542 units};
+\node[box, right=of corp, minimum width=42mm] (search) {3,838 searchable\\paragraph / table\\evidence records};
+\node[box, right=of search, minimum width=42mm] (emb) {MiniLM\\384-d embeddings\\cosine search};
+\draw[arrow] (corp)--(search); \draw[arrow] (search)--(emb);
+\node[greenbox, below=18mm of corp, minimum width=36mm] (dev) {Development\\963 questions};
+\node[amberbox, below=18mm of search, minimum width=36mm] (val) {Validation\\312 questions};
+\node[ghost, below=18mm of emb, minimum width=36mm] (test) {Test\\324 questions};
+\draw[bluearrow] (corp.south)--(dev.north); \draw[bluearrow] (corp.south) .. controls +(0,-9mm) and +(-8mm,9mm) .. (val.north west); \draw[bluearrow] (corp.south) .. controls +(0,-9mm) and +(-12mm,9mm) .. (test.north west);
+\node[label, below=10mm of val, text width=130mm] {Document identity is assigned before splitting, so questions from the same source document cannot leak across development, validation and test.};
+\end{tikzpicture}
+\end{document}

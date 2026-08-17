@@ -1,0 +1,107 @@
+:root {
+  --ink: #18202a;
+  --muted: #667085;
+  --rule: #e4e7ec;
+  --link: #1d4ed8;
+  --paper: #ffffff;
+  --soft: #f7f8fa;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--paper);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+  line-height: 1.68;
+  -webkit-font-smoothing: antialiased;
+}
+main { width: 100%; }
+article {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 56px 24px 96px;
+}
+h1, h2, h3 {
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+}
+h1 { font-size: clamp(42px, 6vw, 64px); margin: 0 0 20px; }
+h2 { font-size: 34px; margin: 64px 0 18px; }
+h3 { font-size: 25px; margin: 42px 0 12px; }
+p { margin: 0 0 26px; }
+article > p:first-of-type strong {
+  display: block;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 24px;
+  line-height: 1.35;
+  font-weight: 400;
+  color: var(--muted);
+  margin-bottom: 34px;
+}
+a { color: var(--link); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+strong { font-weight: 700; }
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.88em;
+  background: var(--soft);
+  border-radius: 4px;
+  padding: 0.08em 0.28em;
+}
+blockquote {
+  margin: 34px 0;
+  padding: 4px 0 4px 24px;
+  border-left: 4px solid var(--ink);
+  font-size: 24px;
+  line-height: 1.5;
+}
+ul, ol { padding-left: 28px; margin: 0 0 28px; }
+li { margin: 8px 0; }
+hr { border: 0; border-top: 1px solid var(--rule); margin: 64px 0 44px; }
+figure {
+  margin: 42px 0 48px;
+}
+figure img, article > p > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid #eef0f3;
+  background: white;
+}
+figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  text-align: center;
+}
+/* Pandoc may emit images inside paragraphs rather than figures. */
+article > p:has(> img:only-child) {
+  width: min(1180px, calc(100vw - 32px));
+  margin-left: 50%;
+  transform: translateX(-50%);
+  margin-top: 42px;
+  margin-bottom: 48px;
+}
+article > p:has(> img:only-child) img { width: 100%; }
+footer {
+  border-top: 1px solid var(--rule);
+  margin-top: 72px;
+  padding-top: 24px;
+  color: var(--muted);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+@media (max-width: 680px) {
+  body { font-size: 18px; }
+  article { padding: 36px 18px 72px; }
+  h1 { font-size: 42px; }
+  h2 { font-size: 29px; margin-top: 52px; }
+  h3 { font-size: 23px; }
+  blockquote { font-size: 21px; }
+  article > p:first-of-type strong { font-size: 21px; }
+}

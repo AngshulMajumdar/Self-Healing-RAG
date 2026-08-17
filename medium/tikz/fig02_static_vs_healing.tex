@@ -1,0 +1,23 @@
+\documentclass[tikz,border=8pt]{standalone}
+\input{common_preamble.tex}
+\begin{document}
+\begin{tikzpicture}
+\node[title] at (7.8,4.9) {Static RAG has no endogenous recovery state};
+\node[ghost, minimum width=34mm] (q1) at (1.4,3.3) {Question};
+\node[ghost, minimum width=34mm] (r1) at (5.0,3.3) {Top-$k$ retrieval};
+\node[ghost, minimum width=34mm] (g1) at (8.6,3.3) {Generate};
+\node[redbox, minimum width=34mm] (f1) at (12.3,3.3) {Wrong /\\unsupported};
+\draw[arrow] (q1)--(r1); \draw[arrow] (r1)--(g1); \draw[arrow] (g1)--(f1);
+\node[label, text width=54mm] at (12.3,1.85) {The pipeline can fail, but it has no formal state from which to recover.};
+\draw[linegray, very thick] (0.0,1.15)--(15.7,1.15);
+\node[bluebox, minimum width=32mm] (q2) at (1.4,-0.3) {Question};
+\node[box, minimum width=32mm] (r2) at (4.8,-0.3) {Retrieve};
+\node[amberbox, minimum width=32mm] (o2) at (8.2,-0.3) {Observe};
+\node[greenbox, minimum width=32mm] (c2) at (11.6,-0.3) {Commit};
+\node[box, minimum width=32mm] (a2) at (15.0,-0.3) {Answer};
+\draw[arrow] (q2)--(r2); \draw[arrow] (r2)--(o2);
+\draw[greenarrow] (o2)--node[label,above]{closed}(c2); \draw[arrow] (c2)--(a2);
+\draw[bluearrow] (o2.south) .. controls +(0,-12mm) and +(0,-12mm) .. node[label,below=2pt,pos=.5]{open $\Rightarrow$ repair transaction}(r2.south);
+\node[label, text width=150mm] at (8.0,-2.75) {Healing changes the abstraction: failure becomes observable state; repair becomes a guarded transition rather than an unstructured retry.};
+\end{tikzpicture}
+\end{document}

@@ -1,0 +1,17 @@
+\documentclass[tikz,border=8pt]{standalone}
+\input{common_preamble.tex}
+\begin{document}
+\begin{tikzpicture}[node distance=10mm and 12mm]
+\node[title] (ttl) {Retrieval repair is a transaction, not a retry};
+\node[bluebox, below=11mm of ttl, minimum width=35mm] (s) {Durable state\\$s_t$};
+\node[box, right=of s, minimum width=35mm] (a) {Action\\$a_t$};
+\node[amberbox, right=of a, minimum width=39mm] (p) {Tentative proposal\\$p_t$};
+\node[box, right=of p, minimum width=39mm] (v) {Independent\\verification $v_t$};
+\draw[arrow] (s)--(a); \draw[arrow] (a)--(p); \draw[arrow] (p)--(v);
+\node[greenbox, below=16mm of v, xshift=-25mm, minimum width=42mm] (c) {COMMIT\\$s_{t+1}=p_t$};
+\node[redbox, below=16mm of v, xshift=25mm, minimum width=42mm] (rb) {ROLLBACK\\$s_{t+1}=s_t$};
+\draw[greenarrow] (v)--node[label,left]{guards pass}(c);
+\draw[redarrow] (v)--node[label,right]{guards fail}(rb);
+\node[label, below=11mm of c, xshift=25mm, text width=120mm] {The proposal never becomes authoritative merely because retrieval returned something new.};
+\end{tikzpicture}
+\end{document}
